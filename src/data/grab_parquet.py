@@ -13,7 +13,6 @@ def grab_data() -> None:
     This methods takes no arguments and returns nothing.
     """
 
-    # Constants
     base_url = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata"
     folder = "../../data/raw/"
 
@@ -22,20 +21,20 @@ def grab_data() -> None:
 
     for year in year_range:
         error_count = 0
-        print(f"Downloading files for year {year}")
+        print(f"Telechargement des fichiers pour l'annee {year}")
         for month in month_range:
             month_str = str(month).zfill(2)
-            url = f"{base_url}_{year}-{month_str}.parquet"  # Correction ici : changement de baseurl à base_url
+            url = f"{base_url}_{year}-{month_str}.parquet"
             filename = os.path.join(folder, url.split('/')[-1])
-            print(f"Downloading file from {url} to {filename}")
+            print(f"Telechargement de {url} vers {filename}")
             try:
-                request.urlretrieve(url, filename)  # Correction ici : changement de requests à request
-                print(f"Downloaded file: {filename}")
+                request.urlretrieve(url, filename)
+                print(f"Fichier telecharge: {filename}")
             except Exception as e:
                 break
-        print(f"Downloaded all files for year {year} !")
+        print(f"Tous les fichiers sont telecharges pour l'annee {year} !")
 
-    print("Downloaded all files !")
+    print("Tous les fichiers sont telecharges !")
 
-if __name__ == '__main__':  # Correction ici : changement de name à __name__
+if __name__ == '__main__':
     main()
