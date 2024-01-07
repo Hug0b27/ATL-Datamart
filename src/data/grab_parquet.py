@@ -10,13 +10,14 @@ def main():
     grab_data()
 
 
-def grab_data() -> None:
-    """Grab the data from New York Yellow Taxi
 
-    This method download x files of the New York Yellow Taxi. 
+def grab_data() -> None:
+    """Grab the latest data file from New York Yellow Taxi
+
+    This method identifies and downloads the latest file of the New York Yellow Taxi from the URL. 
     
-    Files need to be saved into "../../data/raw" folder
-    This methods takes no arguments and returns nothing.
+    The file needs to be saved into the "../../data/raw" folder.
+    This method takes no arguments and returns nothing.
     """
     base_url = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata"
     folder = "../../data/ATL-Datamart-1/minio/parquets"
@@ -56,12 +57,12 @@ def write_data_minio():
         access_key="minio",
         secret_key="minio123"
     )
-    bucket: str = "NOM_DU_BUCKET_ICI"
+    bucket: str = "parquets"
     found = client.bucket_exists(bucket)
     if not found:
         client.make_bucket(bucket)
     else:
-        print("Bucket " + bucket + " existe déjà")
+        print("No files were found.")
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
