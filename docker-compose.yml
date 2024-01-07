@@ -17,22 +17,16 @@ services:
     networks:
       - spark_network
   db:
-    image: postgres:latest
+    image: postgres
     restart: always
     ports:
-      - "15432:5432"
+      - "5432:5432"
     environment:
-      POSTGRES_USERNAME: admin
       POSTGRES_PASSWORD: admin
+      POSTGRES_USER: postgres
+      POSTGRES_DB: nyc_warehouse
     volumes:
-    - pgdata:/var/lib/postgresql/data
-
-  zookeeper:
-    hostname: zookeeper
-    container_name: zookeeper
-    image: 'bitnami/zookeeper:latest'
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+      - pgdata:/var/lib/postgresql/data
 
 networks:
   spark_network:
@@ -41,4 +35,3 @@ networks:
 
 volumes:
   pgdata:
- 

@@ -1,9 +1,39 @@
+# import gc
+# import os
+# import sys
+# import sqlalchemy as sa
+# import pandas as pd
+# from sqlalchemy import create_engine
+
+from minio import Minio
+import pandas as pd
+import requests
+from tqdm import tqdm
+import sqlalchemy as sa
+from sqlalchemy import create_engine
 import gc
 import os
 import sys
+from pathlib import Path
+import time
+from datetime import timedelta
 
-import pandas as pd
-from sqlalchemy import create_engine
+
+def main() -> None:
+    folder_path: str = "../../data/ATL-Datamart-1/minio/parquets/"
+    parquet_files = [f for f in os.listdir(folder_path) if
+                     f.lower().endswith('.parquet') and os.path.isfile(os.path.join(folder_path, f))]
+
+    for parquet_file in parquet_files:
+        parquet_df: pd.DataFrame = pd.read_parquet(folder_path + parquet_file, engine='pyarrow')
+        clean_column_name(parquet_df)
+        if not write_data_postgres(parquet_df):
+            del parquet_df
+            gc.collect()
+            return
+
+        del parquet_df
+        gc.collect()
 
 
 def write_data_postgres(dataframe: pd.DataFrame) -> bool:
@@ -22,7 +52,7 @@ def write_data_postgres(dataframe: pd.DataFrame) -> bool:
         "dbms_username": "postgres",
         "dbms_password": "admin",
         "dbms_ip": "localhost",
-        "dbms_port": "15432",
+        "dbms_port": "5432",
         "dbms_database": "nyc_warehouse",
         "dbms_table": "nyc_raw"
     }
@@ -47,33 +77,11 @@ def write_data_postgres(dataframe: pd.DataFrame) -> bool:
 
 
 def clean_column_name(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """
-    Take a Dataframe and rewrite it columns into a lowercase format.
-    Parameters:
-        - dataframe (pd.DataFrame) : The dataframe columns to change
-
-    Returns:
-        - pd.Dataframe : The changed Dataframe into lowercase format
-    """
     dataframe.columns = map(str.lower, dataframe.columns)
     return dataframe
 
 
-def main() -> None:
-    folder_path: str = "../../data/raw/"
-    parquet_files = [f for f in os.listdir(folder_path) if
-                     f.lower().endswith('.parquet') and os.path.isfile(os.path.join(folder_path, f))]
 
-    for parquet_file in parquet_files:
-        parquet_df: pd.DataFrame = pd.read_parquet(folder_path + parquet_file, engine='pyarrow')
-        clean_column_name(parquet_df)
-        if not write_data_postgres(parquet_df):
-            del parquet_df
-            gc.collect()
-            return
-
-        del parquet_df
-        gc.collect()
 
 
 if __name__ == '__main__':
